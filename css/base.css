@@ -1,0 +1,51 @@
+@import url(https://fonts.googleapis.com/css?family=IBM+Plex+Sans:400,400i&display=swap);
+@import url(https://fonts.googleapis.com/css?family=IBM+Plex+Mono&display=swap);
+
+:root {
+  /* Fonts */
+  --text-font-family: 'IBM Plex Sans';
+  --text-font-base: sans-serif;
+  --code-font-family: 'IBM Plex Mono';
+  --code-font-family-fallback: monospace;
+  --base-font-size: 17px;
+  --text-font-size: 1rem;
+  --code-font-size: 0.9rem;
+}
+
+html {
+  font-size: var(--base-font-size);
+}
+
+body {
+  font-size: var(--text-font-size);
+  font-family: var(--text-font-family), var(--text-font-base);
+  font-weight: 300;
+}
+
+h4 {
+  font-weight: bold;
+}
+
+/* From https://fonts.google.com/icons
+Licence: https://www.apache.org/licenses/LICENSE-2.0.html */
+a.anchor-section::before {
+  content: url(https://fonts.gstatic.com/s/i/materialicons/link/v7/24px.svg);
+}
+
+.sourceCode {
+  overflow: auto;
+}
+
+pre {
+  padding: 1em;
+  border-radius: 0.4em;
+}
+
+pre, code {
+  font-family: var(--code-font-family), var(--code-font-family-fallback);
+  font-size: var(--code-font-size);
+}
+
+pre code {
+  white-space: pre;
+}
