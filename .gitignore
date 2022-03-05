@@ -38,5 +38,6 @@ vignettes/*.pdf
 # R Environment Variables
 .Renviron
 
-# HTML files in root dir
+# Output files in root dir
 /*.html
+/*.pdf
