@@ -1,0 +1,19 @@
+---
+title: Preview of new rmarkdown highlight options
+output:
+  html_document:
+    css: ../css/base.css
+    md_extensions: -smart
+---
+
+---
+
+[My theme (html)](./adam_html.html)
+
+[My theme (pdf)](./adam_pdf.pdf)
+
+[RStudio theme](./rstudio.html)
+
+[Arrow theme](./arrow.html)
+
+[Arrow theme with downlit](./arrow_downlit.html)
