@@ -12,6 +12,27 @@ knitr::opts_chunk$set(
   echo=TRUE, message=FALSE, warning=FALSE,
   dev="svglite", fig.align="center"
 )
+
+old.hooks <- fansi::set_knit_hooks(knitr::knit_hooks)
+
+styles <- c(
+  getOption('fansi.style'),
+  "PRE.fansi CODE {background-color: transparent;}",
+  "PRE.fansi-error {background-color: transparent;}",
+  "PRE.fansi-warning {background-color: transparent;}",
+  "PRE.fansi-message {background-color: transparent;}"
+)
+
+old.hooks <- c(
+  old.hooks,
+  fansi::set_knit_hooks(
+    knitr::knit_hooks,
+    which=c('warning', 'error', 'message'),
+    style=styles
+  )
+)
+
+options(crayon.enabled = TRUE)
 ```
 
 # Packages
