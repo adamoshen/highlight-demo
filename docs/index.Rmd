@@ -1,5 +1,5 @@
 ---
-title: Preview of new rmarkdown highlight options
+title: Preview of various highlight themes
 output:
   html_document:
     css: ../css/base.css
@@ -8,12 +8,29 @@ output:
 
 ---
 
-[My theme (html)](./adam_html.html)
+## Custom themes
 
-[My theme (pdf)](./adam_pdf.pdf)
+- Adam
+  - [pdf](./adam.pdf)
+  - [html](./adam.html)
 
-[RStudio theme](./rstudio.html)
+- Adam One Light: a tweaked version of Atom One Light
+  - [pdf](./adam_one_light.pdf)
+  - [html](./adam_one_light.html)
 
-[Arrow theme](./arrow.html)
+- Semilit: a tweaked version of the arrow/downlit theme, but with slightly less grey
+  - [pdf](./semilit.pdf)
+  - [html](./semilit.html)
+  
+## New built-in themes
 
-[Arrow theme with downlit](./arrow_downlit.html)
+- RStudio
+  - [pdf](./rstudio.pdf)
+  - [html](./rstudio.html)
+  
+- Arrow
+  - [pdf](./arrow.pdf)
+  - [html](./arrow.html)
+  
+- Arrow with downlit
+  - [html](./arrow_downlit.html)
