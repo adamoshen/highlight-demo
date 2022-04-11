@@ -12,7 +12,7 @@
       "underline": false
     },
     "Attribute": {
-      "text-color": "#092E80",
+      "text-color": "#0184BC",
       "background-color": null,
       "bold": false,
       "italic": false,
@@ -159,7 +159,7 @@
       "underline": false
     },
     "Float": {
-      "text-color": "#DE935F",
+      "text-color": "#CB7701",
       "background-color": null,
       "bold": false,
       "italic": false,
@@ -194,7 +194,7 @@
       "underline": false
     },
     "DecVal": {
-      "text-color": "#DE935F",
+      "text-color": "#CB7701",
       "background-color": null,
       "bold": false,
       "italic": false,
