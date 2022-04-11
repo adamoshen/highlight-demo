@@ -1,15 +1,15 @@
 ---
-title: "RStudio theme"
+title: "Semilit theme"
 author: "Adam Shen"
 output:
   html_document:
     css: css/base.css
-    highlight: rstudio
+    highlight: themes/semilit.theme
     math_method: katex
     md_extensions: -smart
   pdf_document:
     latex_engine: xelatex
-    highlight: rstudio
+    highlight: themes/semilit.theme
     md_extensions: -smart
     includes:
       in_header: header.tex

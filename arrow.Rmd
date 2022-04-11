@@ -1,84 +1,191 @@
 ---
-title: Arrow Theme
+title: "Arrow theme"
+author: "Adam Shen"
 output:
   html_document:
-    highlight: arrow
     css: css/base.css
+    highlight: arrow
+    math_method: katex
     md_extensions: -smart
+  pdf_document:
+    latex_engine: xelatex
+    highlight: arrow
+    md_extensions: -smart
+    includes:
+      in_header: header.tex
 ---
 
 ```{r, include=FALSE}
-knitr::opts_chunk$set(
-  echo=TRUE, message=FALSE, warning=FALSE,
-  dev="svglite", fig.align="center"
-)
-
-old.hooks <- fansi::set_knit_hooks(knitr::knit_hooks)
-
-styles <- c(
-  getOption('fansi.style'),
-  "PRE.fansi CODE {background-color: transparent;}",
-  "PRE.fansi-error {background-color: transparent;}",
-  "PRE.fansi-warning {background-color: transparent;}",
-  "PRE.fansi-message {background-color: transparent;}"
-)
-
-old.hooks <- c(
-  old.hooks,
-  fansi::set_knit_hooks(
-    knitr::knit_hooks,
-    which=c('warning', 'error', 'message'),
-    style=styles
-  )
-)
-
-options(crayon.enabled = TRUE)
+knitr::opts_chunk$set(echo=TRUE, message=FALSE, warning=FALSE)
 ```
 
-# Packages
+# Packages and setup
 
 ```{r}
 library(tidyverse)
-theme_set(theme_bw())
+
+set.seed(20)
 ```
 
-# Penguins data
+# The `rowwise` function
+
+The [`rowwise`](https://dplyr.tidyverse.org/reference/rowwise.html) function allows for the grouping
+of data by rows in order to perform some operation across the values found in its columns.
+
+Some basic data:
 
 ```{r}
-penguins <- palmerpenguins::penguins %>%
-  drop_na()
+nums <- tibble(
+  x1 = sample(1:5, size=6, replace=TRUE),
+  x2 = sample(1:5, size=6, replace=TRUE),
+  x3 = sample(1:5, size=6, replace=TRUE),
+  x4 = sample(1:5, size=6, replace=TRUE)
+)
 
-glimpse(penguins)
+nums
 ```
 
+I won't actually be using `x4` in the demo below, but I'm including it to make the data a bit more
+realistic. Oftentimes, you will have more variables in your data set than the ones you are trying
+to operate on, i.e. you can't always just `tidyselect::everything()`!
+
+## Using `c_across` with `rowwise`
+
+The [`c_across`](https://dplyr.tidyverse.org/reference/c_across.html) function is often used with
+`rowwise` in order to **combine values across columns**. What happens if we use `c_across` without
+`rowwise`?
+
 ```{r}
-new_peng <- penguins %>%
-  mutate(diff1 = bill_length_mm - mean(bill_length_mm)) %>%
-  group_by(species, island) %>%
-  mutate(diff2 = bill_length_mm - mean(bill_length_mm)) %>%
+nums %>%
+  mutate(test = mean(c_across(x1:x3)))
+```
+
+It can be seen that the `test` column has a single value that is repeated throughout. Without
+grouping the data rowwise, the mean is computed using **all** the values across `x1`, `x2`, and
+`x3`:
+
+```{r}
+mean(c(nums$x1, nums$x2, nums$x3))
+```
+
+Now, if we group the data rowwise before computing the mean across `x1`, `x2`, and `x3`:
+
+```{r}
+nums %>%
+  rowwise() %>%
+  mutate(test = mean(c_across(x1:x3)))
+```
+
+We can check that the results are what we wanted:
+
+```{r}
+mean(c(3, 1, 4))
+mean(c(5, 2, 4))
+```
+
+They match &#8212; great!
+
+**Note:** `rowwise` is a type of grouping. From the first two lines of the tibble output above, we
+can see that after creating the `test` variable, the data is still grouped (rowwise)! Don't forget
+to `ungroup` when you're done mutating.
+
+## Rowwise matrix operations
+
+### Output is a vector of length 1
+
+Suppose you wanted to perform the following computation using the values found in each row:
+
+\[\mathbf{x}'\mathbf{A}\mathbf{x}\]
+
+We will first create a function that:
+
+1. Takes the combined values over a selection of columns (i.e. the result of `c_across`)
+2. Converts the values to a matrix (a $n \times 1$ column vector)
+3. Performs the matrix operation and reduces the resulting $1 \times 1$ matrix to a vector of
+length 1
+
+\
+
+```{r}
+quadratic <- function(x, A) {
+  x <- as.matrix(x)
+  
+  drop(t(x) %*% A %*% x)
+}
+```
+
+For the $\mathbf{A}$ matrix, let's use:
+
+```{r}
+A <- matrix(
+  sample(0:5, size=9, replace=TRUE),
+  nrow=3, ncol=3
+)
+
+A
+```
+
+Putting it all together:
+
+```{r}
+nums %>%
+  rowwise() %>%
+  mutate(test = quadratic(c_across(x1:x3), A)) %>%
+  ungroup()
+```
+
+Checking our work:
+
+```{r}
+quadratic(c(3, 1, 4), A)
+quadratic(c(5, 2, 4), A)
+```
+
+### Output is a vector of length greater than 1
+
+Suppose you wanted to perform the following computation using the values found in each row:
+
+\[\mathbf{A}\mathbf{x}\]
+
+and wanted each value to go into its own column. This can be accomplished by first creating a
+function similar to the previous, but returning a list containing a named vector instead. Then we
+can use [`unnest_wider`](https://tidyr.tidyverse.org/reference/hoist.html) to unnest the values
+within the list into their own columns.
+
+Creating the right-multiplying function:
+
+```{r}
+right_mult <- function(x, A) {
+  x <- as.matrix(x)
+  
+  drop(A %*% x) %>%
+    set_names(., paste0("new_x", 1:length(.))) %>%
+    list()
+}
+```
+
+Creating the new list-column:
+
+```{r}
+nums %>%
+  rowwise() %>%
+  mutate(test = right_mult(c_across(x1:x3), A)) %>%
+  ungroup()
+```
+
+Unnesting the list contents into their own columns:
+
+```{r}
+nums %>%
+  rowwise() %>%
+  mutate(test = right_mult(c_across(x1:x3), A)) %>%
   ungroup() %>%
-  select(species, island, bill_length_mm, contains("diff"))
-
-new_peng
+  unnest_wider(test)
 ```
 
-```{r, fig.width=12}
-ggplot(penguins, aes(x=bill_length_mm, y=bill_depth_mm)) +
-  geom_point(aes(colour=species)) +
-  facet_wrap(~species, nrow=1) +
-  labs(x="Bill length (mm)", y="Bill depth (mm)")
-```
+Checking our work:
 
-# Everything else
-
-```{r, eval=FALSE}
-# This chunk starts with a comment
-
-if else while for 
-TRUE FALSE NA NULL
-
-# Quoted variables:
-`s2@_df` <- 3
-
-1 2 3 4 5 6 7 8 9 10
+```{r}
+right_mult(c(3, 1, 4), A)
+right_mult(c(5, 2, 4), A)
 ```
