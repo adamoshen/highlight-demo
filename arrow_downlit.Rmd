@@ -184,3 +184,8 @@ Checking our work:
 right_mult(c(3, 1, 4), A)
 right_mult(c(5, 2, 4), A)
 ```
+
+```{r}
+# This is a comment
+## Documentation
+```

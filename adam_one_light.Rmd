@@ -1,15 +1,15 @@
 ---
-title: "Adam theme"
+title: "Adam One Light theme"
 author: "Adam Shen"
 output:
   html_document:
     css: css/base.css
-    highlight: themes/adam.theme
+    highlight: themes/adam_one_light.theme
     math_method: katex
     md_extensions: -smart
   pdf_document:
     latex_engine: xelatex
-    highlight: themes/adam.theme
+    highlight: themes/adam_one_light.theme
     md_extensions: -smart
     includes:
       in_header: header.tex
