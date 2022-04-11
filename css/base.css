@@ -43,9 +43,13 @@ pre {
 
 pre, code {
   font-family: var(--code-font-family), var(--code-font-family-fallback);
-  font-size: var(--code-font-size);
 }
 
 pre code {
   white-space: pre;
+  font-size: var(--code-font-size);
+}
+
+p code {
+  font-size: var(--code-font-size);
 }
