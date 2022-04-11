@@ -472,202 +472,230 @@ pre code {
 </div>
 
 
-<div id="packages-and-setup" class="section level1">
-<h1>Packages and setup</h1>
+<div id="about-the-data" class="section level1">
+<h1>About the data</h1>
+<p>The production and sales of different types of greenhouse flowers and
+plants has been collected annually since 2007 for both Canada as a whole
+and its individual provinces (no territories).</p>
+<p>More information on this record can be found <a href="https://open.canada.ca/data/en/dataset/31552d6f-7504-4258-9125-8d9aa45792ce">here</a>.</p>
+<p>The data and accompanying metadata can be downloaded together as a
+.zip file from <a href="https://www150.statcan.gc.ca/n1/tbl/csv/32100246-eng.zip">here</a>.</p>
+</div>
+<div id="packages" class="section level1">
+<h1>Packages</h1>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">20</span>)</span></code></pre></div>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gghighlight)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">theme_set</span>(<span class="fu">theme_bw</span>())</span></code></pre></div>
 </div>
-<div id="the-rowwise-function" class="section level1">
-<h1>The <code>rowwise</code> function</h1>
-<p>The <a href="https://dplyr.tidyverse.org/reference/rowwise.html"><code>rowwise</code></a>
-function allows for the grouping of data by rows in order to perform
-some operation across the values found in its columns.</p>
-<p>Some basic data:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>nums <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">x1 =</span> <span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="at">size=</span><span class="dv">6</span>, <span class="at">replace=</span><span class="cn">TRUE</span>),</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">x2 =</span> <span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="at">size=</span><span class="dv">6</span>, <span class="at">replace=</span><span class="cn">TRUE</span>),</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">x3 =</span> <span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="at">size=</span><span class="dv">6</span>, <span class="at">replace=</span><span class="cn">TRUE</span>),</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">x4 =</span> <span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="at">size=</span><span class="dv">6</span>, <span class="at">replace=</span><span class="cn">TRUE</span>)</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>nums</span></code></pre></div>
-<pre><code>## # A tibble: 6 x 4
-##      x1    x2    x3    x4
-##   &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt;
-## 1     3     1     4     5
-## 2     2     3     1     1
-## 3     1     5     5     5
-## 4     2     1     1     2
-## 5     5     5     1     1
-## 6     5     2     4     5</code></pre>
-<p>I won&#39;t actually be using <code>x4</code> in the demo below, but I&#39;m
-including it to make the data a bit more realistic. Oftentimes, you will
-have more variables in your data set than the ones you are trying to
-operate on, i.e. you can&#39;t always just
-<code>tidyselect::everything()</code>!</p>
-<div id="using-c_across-with-rowwise" class="section level2">
-<h2>Using <code>c_across</code> with <code>rowwise</code></h2>
-<p>The <a href="https://dplyr.tidyverse.org/reference/c_across.html"><code>c_across</code></a>
-function is often used with <code>rowwise</code> in order to
-<strong>combine values across columns</strong>. What happens if we use
-<code>c_across</code> without <code>rowwise</code>?</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>nums <span class="sc">%&gt;%</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">test =</span> <span class="fu">mean</span>(<span class="fu">c_across</span>(x1<span class="sc">:</span>x3)))</span></code></pre></div>
-<pre><code>## # A tibble: 6 x 5
-##      x1    x2    x3    x4  test
-##   &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;dbl&gt;
-## 1     3     1     4     5  2.83
-## 2     2     3     1     1  2.83
-## 3     1     5     5     5  2.83
-## 4     2     1     1     2  2.83
-## 5     5     5     1     1  2.83
-## 6     5     2     4     5  2.83</code></pre>
-<p>It can be seen that the <code>test</code> column has a single value
-that is repeated throughout. Without grouping the data rowwise, the mean
-is computed using <strong>all</strong> the values across
-<code>x1</code>, <code>x2</code>, and <code>x3</code>:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(<span class="fu">c</span>(nums<span class="sc">$</span>x1, nums<span class="sc">$</span>x2, nums<span class="sc">$</span>x3))</span></code></pre></div>
-<pre><code>## [1] 2.833333</code></pre>
-<p>Now, if we group the data rowwise before computing the mean across
-<code>x1</code>, <code>x2</code>, and <code>x3</code>:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>nums <span class="sc">%&gt;%</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rowwise</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">test =</span> <span class="fu">mean</span>(<span class="fu">c_across</span>(x1<span class="sc">:</span>x3)))</span></code></pre></div>
-<pre><code>## # A tibble: 6 x 5
-## # Rowwise: 
-##      x1    x2    x3    x4  test
-##   &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;dbl&gt;
-## 1     3     1     4     5  2.67
-## 2     2     3     1     1  2   
-## 3     1     5     5     5  3.67
-## 4     2     1     1     2  1.33
-## 5     5     5     1     1  3.67
-## 6     5     2     4     5  3.67</code></pre>
-<p>We can check that the results are what we wanted:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(<span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">1</span>, <span class="dv">4</span>))</span></code></pre></div>
-<pre><code>## [1] 2.666667</code></pre>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(<span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">2</span>, <span class="dv">4</span>))</span></code></pre></div>
-<pre><code>## [1] 3.666667</code></pre>
-<p>They match — great!</p>
-<p><strong>Note:</strong> <code>rowwise</code> is a type of grouping.
-From the first two lines of the tibble output above, we can see that
-after creating the <code>test</code> variable, the data is still grouped
-(rowwise)! Don&#39;t forget to <code>ungroup</code> when you&#39;re done
-mutating.</p>
+<div id="obtaining-the-data" class="section level1">
+<h1>Obtaining the data</h1>
+<p>For these demos, I will be storing all data files in a folder called
+<code>data</code> with subfolders for each topic.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">dir.exists</span>(<span class="st">&quot;./data/flowers&quot;</span>)) {</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dir.create</span>(<span class="st">&quot;./data/flowers&quot;</span>, <span class="at">recursive=</span><span class="cn">TRUE</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">download.file</span>(</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;https://www150.statcan.gc.ca/n1/tbl/csv/32100246-eng.zip&quot;</span>,</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">destfile =</span> <span class="st">&quot;./data/flowers/flowers.zip&quot;</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="fu">unzip</span>(</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;./data/flowers/flowers.zip&quot;</span>,</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">exdir =</span> <span class="st">&quot;./data/flowers&quot;</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">list.files</span>(<span class="st">&quot;./data/flowers&quot;</span>, <span class="at">pattern=</span><span class="st">&quot;csv&quot;</span>)</span></code></pre></div>
 </div>
-<div id="rowwise-matrix-operations" class="section level2">
-<h2>Rowwise matrix operations</h2>
-<div id="output-is-a-vector-of-length-1" class="section level3">
-<h3>Output is a vector of length 1</h3>
-<p>Suppose you wanted to perform the following computation using the
-values found in each row:</p>
-<p><span class="math display">\mathbf{x}&#39;\mathbf{A}\mathbf{x}</span></p>
-<p>We will first create a function that:</p>
-<ol style="list-style-type: decimal">
-<li>Takes the combined values over a selection of columns (i.e. the
-result of <code>c_across</code>)</li>
-<li>Converts the values to a matrix (a <span class="math inline">n
-\times 1</span> column vector)</li>
-<li>Performs the matrix operation and reduces the resulting <span class="math inline">1 \times 1</span> matrix to a vector of length
-1</li>
-</ol>
-<p><br />
-</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>quadratic <span class="ot">&lt;-</span> <span class="cf">function</span>(x, A) {</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(x)</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop</span>(<span class="fu">t</span>(x) <span class="sc">%*%</span> A <span class="sc">%*%</span> x)</span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<p>For the <span class="math inline">\mathbf{A}</span> matrix, let&#39;s
-use:</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>A <span class="ot">&lt;-</span> <span class="fu">matrix</span>(</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sample</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">5</span>, <span class="at">size=</span><span class="dv">9</span>, <span class="at">replace=</span><span class="cn">TRUE</span>),</span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">nrow=</span><span class="dv">3</span>, <span class="at">ncol=</span><span class="dv">3</span></span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>A</span></code></pre></div>
-<pre><code>##      [,1] [,2] [,3]
-## [1,]    1    2    4
-## [2,]    2    0    5
-## [3,]    4    3    4</code></pre>
-<p>Putting it all together:</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>nums <span class="sc">%&gt;%</span></span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rowwise</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">test =</span> <span class="fu">quadratic</span>(<span class="fu">c_across</span>(x1<span class="sc">:</span>x3), A)) <span class="sc">%&gt;%</span></span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span></code></pre></div>
-<pre><code>## # A tibble: 6 x 5
-##      x1    x2    x3    x4  test
-##   &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;dbl&gt;
-## 1     3     1     4     5   213
-## 2     2     3     1     1    72
-## 3     1     5     5     5   361
-## 4     2     1     1     2    40
-## 5     5     5     1     1   209
-## 6     5     2     4     5   353</code></pre>
-<p>Checking our work:</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">quadratic</span>(<span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">1</span>, <span class="dv">4</span>), A)</span></code></pre></div>
-<pre><code>## [1] 213</code></pre>
-<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">quadratic</span>(<span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">2</span>, <span class="dv">4</span>), A)</span></code></pre></div>
-<pre><code>## [1] 353</code></pre>
+<div id="reading-in-the-data" class="section level1">
+<h1>Reading in the data</h1>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>flowers <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;./data/flowers/32100246.csv&quot;</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(flowers)</span></code></pre></div>
+<p>The variables of interest are:</p>
+<table>
+<colgroup>
+<col width="23%" />
+<col width="76%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Variable</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>REF_DATE</code></td>
+<td>Year of record</td>
+</tr>
+<tr class="even">
+<td><code>GEO</code></td>
+<td>Country or province</td>
+</tr>
+<tr class="odd">
+<td><code>VALUE</code></td>
+<td>Number of plants produced or monetary value of plants sold</td>
+</tr>
+<tr class="even">
+<td><code>Output</code></td>
+<td>Whether <code>VALUE</code> corresponds to production (number) or
+sales (dollars)</td>
+</tr>
+<tr class="odd">
+<td><code>Flowers and plants</code></td>
+<td>Flower and plant types</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>flowers <span class="ot">&lt;-</span> flowers <span class="sc">%&gt;%</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(REF_DATE, GEO, VALUE, Output, <span class="st">`</span><span class="at">Flowers and plants</span><span class="st">`</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">year =</span> REF_DATE,</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">location =</span> GEO,</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">value =</span> VALUE,</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">output =</span> Output,</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">type =</span> <span class="st">`</span><span class="at">Flowers and plants</span><span class="st">`</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
 </div>
-<div id="output-is-a-vector-of-length-greater-than-1" class="section level3">
-<h3>Output is a vector of length greater than 1</h3>
-<p>Suppose you wanted to perform the following computation using the
-values found in each row:</p>
-<p><span class="math display">\mathbf{A}\mathbf{x}</span></p>
-<p>and wanted each value to go into its own column. This can be
-accomplished by first creating a function similar to the previous, but
-returning a list containing a named vector instead. Then we can use <a href="https://tidyr.tidyverse.org/reference/hoist.html"><code>unnest_wider</code></a>
-to unnest the values within the list into their own columns.</p>
-<p>Creating the right-multiplying function:</p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>right_mult <span class="ot">&lt;-</span> <span class="cf">function</span>(x, A) {</span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(x)</span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop</span>(A <span class="sc">%*%</span> x) <span class="sc">%&gt;%</span></span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">set_names</span>(., <span class="fu">paste0</span>(<span class="st">&quot;new_x&quot;</span>, <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(.))) <span class="sc">%&gt;%</span></span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">list</span>()</span>
-<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<p>Creating the new list-column:</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>nums <span class="sc">%&gt;%</span></span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rowwise</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">test =</span> <span class="fu">right_mult</span>(<span class="fu">c_across</span>(x1<span class="sc">:</span>x3), A)) <span class="sc">%&gt;%</span></span>
-<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span></code></pre></div>
-<pre><code>## # A tibble: 6 x 5
-##      x1    x2    x3    x4 test     
-##   &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;list&gt;   
-## 1     3     1     4     5 &lt;dbl [3]&gt;
-## 2     2     3     1     1 &lt;dbl [3]&gt;
-## 3     1     5     5     5 &lt;dbl [3]&gt;
-## 4     2     1     1     2 &lt;dbl [3]&gt;
-## 5     5     5     1     1 &lt;dbl [3]&gt;
-## 6     5     2     4     5 &lt;dbl [3]&gt;</code></pre>
-<p>Unnesting the list contents into their own columns:</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>nums <span class="sc">%&gt;%</span></span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rowwise</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">test =</span> <span class="fu">right_mult</span>(<span class="fu">c_across</span>(x1<span class="sc">:</span>x3), A)) <span class="sc">%&gt;%</span></span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest_wider</span>(test)</span></code></pre></div>
-<pre><code>## # A tibble: 6 x 7
-##      x1    x2    x3    x4 new_x1 new_x2 new_x3
-##   &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;
-## 1     3     1     4     5     21     26     31
-## 2     2     3     1     1     12      9     21
-## 3     1     5     5     5     31     27     39
-## 4     2     1     1     2      8      9     15
-## 5     5     5     1     1     19     15     39
-## 6     5     2     4     5     25     30     42</code></pre>
-<p>Checking our work:</p>
-<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">right_mult</span>(<span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">1</span>, <span class="dv">4</span>), A)</span></code></pre></div>
-<pre><code>## [[1]]
-## new_x1 new_x2 new_x3 
-##     21     26     31</code></pre>
-<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">right_mult</span>(<span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">2</span>, <span class="dv">4</span>), A)</span></code></pre></div>
-<pre><code>## [[1]]
-## new_x1 new_x2 new_x3 
-##     25     30     42</code></pre>
-<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># This is a comment</span></span>
-<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="do">## Documentation</span></span></code></pre></div>
+<div id="plant-sales-in-canada" class="section level1">
+<h1>Plant sales in Canada</h1>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>flower_sales_can <span class="ot">&lt;-</span> flowers <span class="sc">%&gt;%</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(location <span class="sc">==</span> <span class="st">&quot;Canada&quot;</span>, output <span class="sc">==</span> <span class="st">&quot;Sales&quot;</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(flower_sales_can, <span class="fu">aes</span>(<span class="at">x=</span>year, <span class="at">y=</span>value, <span class="at">colour=</span>type))<span class="sc">+</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>()</span></code></pre></div>
+<div id="improving-our-plot" class="section level2">
+<h2>Improving our plot</h2>
+<ul>
+<li>Axis titles and legend title should be capitalised</li>
+<li>Legend taking up too much of the plotting area due to excessive
+information</li>
+<li>Y-axis is in scientific notation which requires the reader to do
+math</li>
+<li>It is unclear what the y-axis is measuring</li>
+</ul>
+<div id="cleaning-up-the-flower-types" class="section level3">
+<h3>Cleaning up the flower types</h3>
+<p>We can overwrite the existing <code>flowers</code> data with these
+changes since we&#39;ll want to use the cleaned data again later. We&#39;ll
+remove the word <em>Total</em> with the space that comes after, the
+space before the square brackets, and the square brackets with all of
+its contents. Finally, we will capitalise the first letter of each
+flower type.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>flowers <span class="ot">&lt;-</span> flowers <span class="sc">%&gt;%</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">type =</span> <span class="fu">str_remove</span>(type, <span class="at">pattern=</span><span class="st">&quot;Total</span><span class="sc">\\</span><span class="st">s&quot;</span>),</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">type =</span> <span class="fu">str_remove</span>(type, <span class="at">pattern=</span><span class="st">&quot;</span><span class="sc">\\</span><span class="st">s</span><span class="sc">\\</span><span class="st">[.*</span><span class="sc">\\</span><span class="st">]&quot;</span>),</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">type =</span> <span class="fu">str_to_sentence</span>(type)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
+<p>We can check our work using:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>flowers <span class="sc">%&gt;%</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(type)</span></code></pre></div>
+<p>Now, to re-obtain the data we originally had:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>flower_sales_can <span class="ot">&lt;-</span> flowers <span class="sc">%&gt;%</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(location <span class="sc">==</span> <span class="st">&quot;Canada&quot;</span>, output <span class="sc">==</span> <span class="st">&quot;Sales&quot;</span>)</span></code></pre></div>
+</div>
+<div id="avoiding-scientific-notation-on-the-y-axis" class="section level3">
+<h3>Avoiding scientific notation on the y-axis</h3>
+<p>We can avoid the scientific notation on the y-axis by simply scaling
+the values.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>flower_sales_can <span class="ot">&lt;-</span> flower_sales_can <span class="sc">%&gt;%</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">value =</span> value <span class="sc">/</span> <span class="fl">1e6</span>)</span></code></pre></div>
+<p>Now our y-axis will have the unit of millions of dollars rather than
+single dollars.</p>
+</div>
+<div id="remaking-the-plot" class="section level3">
+<h3>Remaking the plot</h3>
+<p>We can remove the legend entirely and just label the lines directly
+on the plot using <code>gghighlight()</code>. <code>gghighlight()</code>
+highlights five levels by default. Coincidentally, we have exactly five
+lines!</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(flower_sales_can, <span class="fu">aes</span>(<span class="at">x=</span>year, <span class="at">y=</span>value, <span class="at">colour=</span>type))<span class="sc">+</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>()<span class="sc">+</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gghighlight</span>(<span class="at">label_params =</span> <span class="fu">list</span>(<span class="at">alpha=</span><span class="fl">0.6</span>))<span class="sc">+</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">x=</span><span class="st">&quot;Year&quot;</span>, <span class="at">y=</span><span class="st">&quot;Value of plants sold (million dollars)&quot;</span>,</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">title=</span><span class="st">&quot;Total value of plants sold in Canada&quot;</span>,</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle=</span><span class="st">&quot;2007 to 2020&quot;</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
+</div>
+</div>
+</div>
+<div id="plant-production-in-canada-in-2020" class="section level1">
+<h1>Plant production in Canada in 2020</h1>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>flower_prod_can <span class="ot">&lt;-</span> flowers <span class="sc">%&gt;%</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(year <span class="sc">==</span> <span class="dv">2020</span>, location <span class="sc">==</span> <span class="st">&quot;Canada&quot;</span>, output <span class="sc">==</span> <span class="st">&quot;Production (number)&quot;</span>)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(flower_prod_can, <span class="fu">aes</span>(<span class="at">x=</span>type, <span class="at">y=</span>value))<span class="sc">+</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>()</span></code></pre></div>
+<div id="improving-our-plot-1" class="section level2">
+<h2>Improving our plot</h2>
+<ul>
+<li>Axis titles should be capitalised</li>
+<li>Y-axis is in scientific notation which requires the reader to do
+math</li>
+<li>It is unclear what the y-axis is measuring</li>
+<li>Bars are unordered</li>
+</ul>
+<div id="reordering-the-flower-types-by-number-of-plants-produced" class="section level3">
+<h3>Reordering the flower types by number of plants produced</h3>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>flower_prod_can <span class="ot">&lt;-</span> flower_prod_can <span class="sc">%&gt;%</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">type =</span> <span class="fu">fct_reorder</span>(type, value, <span class="at">.desc=</span><span class="cn">TRUE</span>))</span></code></pre></div>
+</div>
+<div id="avoiding-scientific-notation-on-the-y-axis-1" class="section level3">
+<h3>Avoiding scientific notation on the y-axis</h3>
+<p>We can avoid the scientific notation on the y-axis by once again
+scaling the values.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>flower_prod_can <span class="ot">&lt;-</span> flower_prod_can <span class="sc">%&gt;%</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">value =</span> value <span class="sc">/</span> <span class="fl">1e6</span>)</span></code></pre></div>
+<p>Now our y-axis will have the unit of millions of units rather than
+single units.</p>
+</div>
+<div id="remaking-the-plot-1" class="section level3">
+<h3>Remaking the plot</h3>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(flower_prod_can, <span class="fu">aes</span>(<span class="at">x=</span>type, <span class="at">y=</span>value))<span class="sc">+</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>()<span class="sc">+</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">x=</span><span class="st">&quot;Plant type&quot;</span>, <span class="at">y=</span><span class="st">&quot;Number of plants produced (millions)&quot;</span>,</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">title=</span><span class="st">&quot;Number of plants produced in Canada in 2020&quot;</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
+</div>
+</div>
+<div id="flipping-the-axes" class="section level2">
+<h2>Flipping the axes</h2>
+<p>When making plots for webpages, we can make them as wide as we want.
+For print, we may be limited to the printing margins. However, in
+reducing the width of the plot,</p>
+<ul>
+<li>Plot labels on the x-axis may overlap, making them unreadable</li>
+<li>Reducing the font size of the x-axis labels so that they don&#39;t
+overlap can make them difficult to read</li>
+</ul>
+<p>The solution here is to flip the axes — put the plant types on the
+y-axis and their counts on the x-axis.</p>
+<div id="reordering-the-flower-types-by-number-of-plants-produced-again" class="section level3">
+<h3>Reordering the flower types by number of plants produced
+(again)</h3>
+<p>If we are making a horizontal bar plot and we want the values to be
+sorted from largest to smallest, in <code>fct_reorder()</code>, we would
+use the default <code>.desc=FALSE</code>.</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>flower_prod_can <span class="ot">&lt;-</span> flower_prod_can <span class="sc">%&gt;%</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">type =</span> <span class="fu">fct_reorder</span>(type, value))</span></code></pre></div>
+</div>
+<div id="remaking-the-plot-2" class="section level3">
+<h3>Remaking the plot</h3>
+<p>Since <code>ggplot2</code> v3.3.0, we no longer need to build a
+vertical bar plot and add <code>coord_flip()</code> to it. We can now
+build a horizontal bar plot by supplying the values to the x-aesthetic
+and the flower types to the y-aesthetic.</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(flower_prod_can, <span class="fu">aes</span>(<span class="at">x=</span>value, <span class="at">y=</span>type))<span class="sc">+</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>()<span class="sc">+</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">x=</span><span class="st">&quot;Number of plants produced (millions)&quot;</span>, <span class="at">y=</span><span class="st">&quot;Plant type&quot;</span>,</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">title=</span><span class="st">&quot;Number of plants produced in Canada in 2020&quot;</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># This is a comment</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="do">## Documentation</span></span></code></pre></div>
 </div>
 </div>
 </div>
