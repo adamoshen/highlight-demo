@@ -17,6 +17,10 @@ output:
 - Adam One Light: a tweaked version of Atom One Light
   - [pdf](./adam_one_light.pdf)
   - [html](./adam_one_light.html)
+  
+- Adam One Dark: a tweaked version of Atom One Dark
+  - [pdf](./adam_one_dark.pdf)
+  - [html](./adam_one_dark.html)
 
 - Semilit: a tweaked version of the arrow/downlit theme, but with slightly less grey
   - [pdf](./semilit.pdf)
