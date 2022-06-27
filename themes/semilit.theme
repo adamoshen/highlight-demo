@@ -134,7 +134,7 @@
       "text-color": "#5E5E5E",
       "background-color": null,
       "bold": false,
-      "italic": true,
+      "italic": false,
       "underline": false
     },
     "Import": {
