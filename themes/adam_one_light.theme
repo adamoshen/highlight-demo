@@ -131,10 +131,10 @@
       "underline": false
     },
     "Documentation": {
-      "text-color": "#5E5E5E",
+      "text-color": "#4078F2",
       "background-color": null,
       "bold": false,
-      "italic": true,
+      "italic": false,
       "underline": false
     },
     "Import": {
